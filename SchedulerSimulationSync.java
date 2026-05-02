@@ -36,6 +36,7 @@ class SharedResources {
     public static int completedProcessCount = 0;   // Shared counter - NEEDS PROTECTION!
     public static long totalWaitingTime = 0;       // Shared accumulator - NEEDS PROTECTION!
     public static List<String> executionLog = new ArrayList<>();  // Shared list - NEEDS PROTECTION!
+    public static final ReentrantLock loglock = new ReentrantLock();
     
     public static final ReentrantLock contextSwitchLock = new ReentrantLock();
     public static final ReentrantLock completedProcessLock = new ReentrantLock();
@@ -78,10 +79,13 @@ class SharedResources {
     }
     
     // Method to log execution
-    public static void logExecution(String message) {
-        // TODO: Protect this critical section with a lock
-        // RACE CONDITION: ArrayList is not thread-safe!
-        executionLog.add(message);
+    public static void logExection(String message) {
+        loglock.lock();
+            try{
+                executionLog.add(message);
+            } finally {
+                loglock.unlock();
+            }
     }
 }
 
